@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface FormData {
   firstName: string;
@@ -22,6 +23,7 @@ interface FormData {
   countryCode: string;
   interest: string;
   source: string;
+  termsAccepted: boolean;
 }
 
 const WaitlistForm = () => {
@@ -36,9 +38,10 @@ const WaitlistForm = () => {
     countryCode: "+1",
     interest: "",
     source: "",
+    termsAccepted: false,
   });
 
-  const totalSteps = 6;
+  const totalSteps = 7; // Increased by 1 for Terms step
 
   const validateCurrentStep = () => {
     switch (currentStep) {
@@ -79,6 +82,12 @@ const WaitlistForm = () => {
         }
         break;
       case 5:
+        if (!formData.termsAccepted) {
+          setError("Please accept the terms and conditions to continue");
+          return false;
+        }
+        break;
+      case 6:
         if (!formData.source) {
           setError("Please select how you heard about us");
           return false;
@@ -238,8 +247,49 @@ const WaitlistForm = () => {
           </FormStep>
 
           <FormStep
-            question="How did you hear about us?"
+            question="Terms and Conditions"
             isActive={currentStep === 5}
+            direction={direction}
+          >
+            <div className="space-y-4 text-left">
+              <div className="prose prose-sm max-w-none">
+                <p className="text-form-text">
+                  By clicking "Submit," you agree to the following:
+                </p>
+                <ul className="list-disc pl-5 space-y-2 text-form-text">
+                  <li>You consent to receive emails, phone calls, and SMS messages from Resk'Que's team or Robbins Research International to provide updates on your waitlist status and/or for marketing purposes.</li>
+                  <li>Message frequency will be based on your activity.</li>
+                  <li>You may opt out of SMS notifications at any time by texting "STOP."</li>
+                  <li>Message and data rates may apply.</li>
+                </ul>
+                <p className="mt-4 text-form-text">
+                  For more information, please review our{" "}
+                  <a href="#" className="text-blue-600 hover:underline">Terms of Use</a>
+                  {" "}and{" "}
+                  <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>.
+                </p>
+              </div>
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={formData.termsAccepted}
+                  onCheckedChange={(checked) => 
+                    updateFormData("termsAccepted", checked ? "true" : "false")
+                  }
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm text-form-text cursor-pointer"
+                >
+                  I agree to the terms and conditions
+                </label>
+              </div>
+            </div>
+          </FormStep>
+
+          <FormStep
+            question="How did you hear about us?"
+            isActive={currentStep === 6}
             direction={direction}
             options={[
               { key: "A", label: "Social Media" },
