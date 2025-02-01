@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 
 interface FormStepProps {
   question: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   isActive: boolean;
   direction?: "up" | "down";
   options?: { key: string; label: string }[];
