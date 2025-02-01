@@ -6,12 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FormData {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
+  countryCode: string;
   interest: string;
   source: string;
 }
@@ -24,6 +32,7 @@ const WaitlistForm = () => {
     lastName: "",
     email: "",
     phone: "",
+    countryCode: "+1",
     interest: "",
     source: "",
   });
@@ -62,6 +71,17 @@ const WaitlistForm = () => {
       handleNext();
     }
   };
+
+  const countryCodes = [
+    { value: "+1", label: "United States (+1)" },
+    { value: "+44", label: "United Kingdom (+44)" },
+    { value: "+91", label: "India (+91)" },
+    { value: "+61", label: "Australia (+61)" },
+    { value: "+86", label: "China (+86)" },
+    { value: "+33", label: "France (+33)" },
+    { value: "+49", label: "Germany (+49)" },
+    { value: "+81", label: "Japan (+81)" },
+  ];
 
   return (
     <div className="min-h-screen bg-form-background flex flex-col items-center justify-center p-4">
@@ -116,13 +136,30 @@ const WaitlistForm = () => {
             isActive={currentStep === 3}
             direction={direction}
           >
-            <Input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => updateFormData("phone", e.target.value)}
-              placeholder="+1 (555) 000-0000"
-              className="w-full bg-white/80"
-            />
+            <div className="space-y-4">
+              <Select
+                value={formData.countryCode}
+                onValueChange={(value) => updateFormData("countryCode", value)}
+              >
+                <SelectTrigger className="w-full bg-white/80">
+                  <SelectValue placeholder="Select country code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countryCodes.map((code) => (
+                    <SelectItem key={code.value} value={code.value}>
+                      {code.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => updateFormData("phone", e.target.value)}
+                placeholder="(555) 000-0000"
+                className="w-full bg-white/80"
+              />
+            </div>
           </FormStep>
 
           <FormStep
