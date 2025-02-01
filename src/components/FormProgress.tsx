@@ -1,0 +1,21 @@
+import React from "react";
+
+interface FormProgressProps {
+  currentStep: number;
+  totalSteps: number;
+}
+
+const FormProgress: React.FC<FormProgressProps> = ({ currentStep, totalSteps }) => {
+  const progress = (currentStep / totalSteps) * 100;
+
+  return (
+    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-form-accent transition-all duration-300 ease-in-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+};
+
+export default FormProgress;
