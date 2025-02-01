@@ -27,6 +27,7 @@ interface FormData {
 const WaitlistForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"up" | "down">("up");
+  const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -39,10 +40,61 @@ const WaitlistForm = () => {
 
   const totalSteps = 6;
 
+  const validateCurrentStep = () => {
+    switch (currentStep) {
+      case 0:
+        if (!formData.firstName.trim()) {
+          setError("Please enter your first name");
+          return false;
+        }
+        break;
+      case 1:
+        if (!formData.lastName.trim()) {
+          setError("Please enter your last name");
+          return false;
+        }
+        break;
+      case 2:
+        if (!formData.email.trim()) {
+          setError("Please enter your email address");
+          return false;
+        }
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          setError("Please enter a valid email address");
+          return false;
+        }
+        break;
+      case 3:
+        if (!formData.phone.trim()) {
+          setError("Please enter your phone number");
+          return false;
+        }
+        break;
+      case 4:
+        if (!formData.interest.trim()) {
+          setError("Please tell us about your interest");
+          return false;
+        }
+        break;
+      case 5:
+        if (!formData.source) {
+          setError("Please select how you heard about us");
+          return false;
+        }
+        break;
+    }
+    setError("");
+    return true;
+  };
+
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
-      setDirection("up");
-      setCurrentStep((prev) => prev + 1);
+      if (validateCurrentStep()) {
+        setDirection("up");
+        setCurrentStep((prev) => prev + 1);
+      }
     }
   };
 
@@ -50,20 +102,24 @@ const WaitlistForm = () => {
     if (currentStep > 0) {
       setDirection("down");
       setCurrentStep((prev) => prev - 1);
+      setError(""); // Clear any existing error when going back
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Success!",
-      description: "You've been added to the waitlist. We'll be in touch soon!",
-    });
+    if (validateCurrentStep()) {
+      console.log("Form submitted:", formData);
+      toast({
+        title: "Success!",
+        description: "You've been added to the waitlist. We'll be in touch soon!",
+      });
+    }
   };
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setError(""); // Clear error when user starts typing
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -89,6 +145,12 @@ const WaitlistForm = () => {
         <FormProgress currentStep={currentStep} totalSteps={totalSteps} />
         
         <form onSubmit={handleSubmit} className="mt-8 relative min-h-[400px]" onKeyPress={handleKeyPress}>
+          {error && (
+            <div className="absolute top-0 left-0 right-0 text-red-500 text-sm mb-2 bg-red-50 p-2 rounded">
+              {error}
+            </div>
+          )}
+
           <FormStep
             question="What's your first name?"
             isActive={currentStep === 0}
