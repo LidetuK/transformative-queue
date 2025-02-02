@@ -126,7 +126,7 @@ const WaitlistForm = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            access_key: 'YOUR-ACCESS-KEY', // You'll need to sign up at web3forms.com to get this
+            access_key: 'b838d334-7062-4c41-a894-de5f0dd8f25b',
             from_name: "Waitlist Form",
             to: "thee.lifeguide@gmail.com",
             subject: "New Waitlist Submission",
