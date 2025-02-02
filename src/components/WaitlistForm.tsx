@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FormProgress from "./FormProgress";
 import FormStep from "./FormStep";
 import { Button } from "@/components/ui/button";
@@ -148,14 +148,25 @@ const WaitlistForm = () => {
     { value: "+81", label: "Japan (+81)" },
   ];
 
+  // Add effect to auto-advance when terms are accepted
+  useEffect(() => {
+    if (currentStep === 5 && formData.termsAccepted) {
+      handleNext();
+    }
+  }, [formData.termsAccepted]);
+
   return (
     <div className="min-h-screen bg-form-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-xl bg-white/90 rounded-xl shadow-lg p-6 backdrop-blur-sm">
         <FormProgress currentStep={currentStep} totalSteps={totalSteps} />
         
-        <form onSubmit={handleSubmit} className="mt-8 relative min-h-[400px]" onKeyPress={handleKeyPress}>
+        <form 
+          onSubmit={handleSubmit} 
+          className="mt-6 relative min-h-[350px]" 
+          onKeyPress={handleKeyPress}
+        >
           {error && (
-            <div className="absolute top-0 left-0 right-0 text-red-500 text-sm mb-2 bg-red-50 p-2 rounded">
+            <div className="absolute top-0 left-0 right-0 text-red-500 text-sm mb-2 bg-red-50/80 p-2 rounded animate-slideDown">
               {error}
             </div>
           )}
@@ -170,7 +181,7 @@ const WaitlistForm = () => {
               value={formData.firstName}
               onChange={(e) => updateFormData("firstName", e.target.value)}
               placeholder="Type your answer here..."
-              className="w-full bg-white/80"
+              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -184,7 +195,7 @@ const WaitlistForm = () => {
               value={formData.lastName}
               onChange={(e) => updateFormData("lastName", e.target.value)}
               placeholder="Type your answer here..."
-              className="w-full bg-white/80"
+              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -198,7 +209,7 @@ const WaitlistForm = () => {
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
               placeholder="name@example.com"
-              className="w-full bg-white/80"
+              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -207,7 +218,7 @@ const WaitlistForm = () => {
             isActive={currentStep === 3}
             direction={direction}
           >
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Select
                 value={formData.countryCode}
                 onValueChange={(value) => updateFormData("countryCode", value)}
@@ -228,7 +239,7 @@ const WaitlistForm = () => {
                 value={formData.phone}
                 onChange={(e) => updateFormData("phone", e.target.value)}
                 placeholder="(555) 000-0000"
-                className="w-full bg-white/80"
+                className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
               />
             </div>
           </FormStep>
@@ -242,7 +253,7 @@ const WaitlistForm = () => {
               value={formData.interest}
               onChange={(e) => updateFormData("interest", e.target.value)}
               placeholder="Tell us about your interest..."
-              className="w-full bg-white/80"
+              className="w-full bg-white/80 border-form-accent focus:ring-form-accent min-h-[120px]"
             />
           </FormStep>
 
@@ -253,16 +264,16 @@ const WaitlistForm = () => {
           >
             <div className="space-y-4 text-left">
               <div className="prose prose-sm max-w-none">
-                <p className="text-form-text">
+                <p className="text-form-text font-medium">
                   By clicking "Submit," you agree to the following:
                 </p>
-                <ul className="list-disc pl-5 space-y-2 text-form-text">
+                <ul className="list-disc pl-5 space-y-2 text-form-text text-sm">
                   <li>You consent to receive emails, phone calls, and SMS messages from Resk'Que's team or Robbins Research International to provide updates on your waitlist status and/or for marketing purposes.</li>
                   <li>Message frequency will be based on your activity.</li>
                   <li>You may opt out of SMS notifications at any time by texting "STOP."</li>
                   <li>Message and data rates may apply.</li>
                 </ul>
-                <p className="mt-4 text-form-text">
+                <p className="mt-4 text-form-text text-sm">
                   For more information, please review our{" "}
                   <a href="#" className="text-blue-600 hover:underline">Terms of Use</a>
                   {" "}and{" "}
@@ -276,6 +287,7 @@ const WaitlistForm = () => {
                   onCheckedChange={(checked) => 
                     updateFormData("termsAccepted", checked ? "true" : "false")
                   }
+                  className="mt-1"
                 />
                 <label
                   htmlFor="terms"
@@ -309,7 +321,7 @@ const WaitlistForm = () => {
                 onClick={handlePrevious}
                 variant="outline"
                 size="icon"
-                className="rounded-full"
+                className="rounded-full shadow-lg hover:shadow-xl transition-all"
               >
                 <ChevronUp className="h-4 w-4" />
               </Button>
@@ -319,12 +331,15 @@ const WaitlistForm = () => {
                 type="button"
                 onClick={handleNext}
                 size="icon"
-                className="rounded-full"
+                className="rounded-full shadow-lg hover:shadow-xl transition-all"
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" className="px-6">
+              <Button 
+                type="submit" 
+                className="px-6 shadow-lg hover:shadow-xl transition-all"
+              >
                 Submit
               </Button>
             )}
