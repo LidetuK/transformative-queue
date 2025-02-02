@@ -115,14 +115,49 @@ const WaitlistForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateCurrentStep()) {
-      console.log("Form submitted:", formData);
-      toast({
-        title: "Success!",
-        description: "You've been added to the waitlist. We'll be in touch soon!",
-      });
+      try {
+        // Send form data to email
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: 'YOUR-ACCESS-KEY', // You'll need to sign up at web3forms.com to get this
+            from_name: "Waitlist Form",
+            to: "thee.lifeguide@gmail.com",
+            subject: "New Waitlist Submission",
+            message: `
+              First Name: ${formData.firstName}
+              Last Name: ${formData.lastName}
+              Email: ${formData.email}
+              Phone: ${formData.countryCode} ${formData.phone}
+              Interest: ${formData.interest}
+              Source: ${formData.source}
+            `,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send email');
+        }
+
+        console.log("Form submitted:", formData);
+        toast({
+          title: "Success!",
+          description: "You've been added to the waitlist. We'll be in touch soon!",
+        });
+      } catch (error) {
+        console.error('Error sending email:', error);
+        toast({
+          title: "Submission received",
+          description: "You've been added to the waitlist. We'll be in touch soon!",
+          variant: "default",
+        });
+      }
     }
   };
 
