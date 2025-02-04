@@ -365,7 +365,7 @@ const WaitlistForm = () => {
             </div>
           </FormStep>
 
-          <div className="fixed bottom-8 right-8 flex gap-4">
+          <div className="md:fixed md:bottom-8 md:right-8 flex gap-4 mt-6 justify-end sticky bottom-4 right-4 z-10">
             {currentStep > 0 && currentStep < totalSteps - 1 && (
               <Button
                 type="button"
