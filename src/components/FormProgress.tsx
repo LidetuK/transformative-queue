@@ -6,7 +6,8 @@ interface FormProgressProps {
 }
 
 const FormProgress: React.FC<FormProgressProps> = ({ currentStep, totalSteps }) => {
-  const progress = (currentStep / totalSteps) * 100;
+  // Calculate progress percentage, ensuring 100% on the last step
+  const progress = currentStep === totalSteps - 1 ? 100 : (currentStep / (totalSteps - 1)) * 100;
 
   return (
     <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
