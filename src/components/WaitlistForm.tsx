@@ -2,25 +2,19 @@ import React, { useState, useEffect } from "react";
 import FormProgress from "./FormProgress";
 import FormStep from "./FormStep";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import PersonalInfo from "./form/PersonalInfo";
+import { PhoneInput, validatePhoneNumber } from "./form/PhoneInput";
+import InterestInput from "./form/InterestInput";
 
 interface FormData {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  countryCode: string;
+  areaCode: string;
   interest: string;
   source: string;
   termsAccepted: boolean;
@@ -36,40 +30,13 @@ const WaitlistForm = () => {
     lastName: "",
     email: "",
     phone: "",
-    countryCode: "+1",
+    areaCode: "",
     interest: "",
     source: "",
     termsAccepted: false,
   });
 
-  const totalSteps = 8; // Increased by 1 for success message step
-
-  const validatePhoneNumber = (phone: string, countryCode: string) => {
-    // Remove any non-digit characters
-    const cleanPhone = phone.replace(/\D/g, '');
-    
-    // Basic validation based on country code
-    switch(countryCode) {
-      case "+1": // US/Canada
-        return /^\d{10}$/.test(cleanPhone) ? "" : "Please enter a valid 10-digit phone number";
-      case "+44": // UK
-        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid UK phone number (10-11 digits)";
-      case "+91": // India
-        return /^\d{10}$/.test(cleanPhone) ? "" : "Please enter a valid 10-digit phone number";
-      case "+61": // Australia
-        return /^\d{9,10}$/.test(cleanPhone) ? "" : "Please enter a valid Australian phone number";
-      case "+86": // China
-        return /^\d{11}$/.test(cleanPhone) ? "" : "Please enter a valid Chinese phone number (11 digits)";
-      case "+33": // France
-        return /^\d{9}$/.test(cleanPhone) ? "" : "Please enter a valid French phone number (9 digits)";
-      case "+49": // Germany
-        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid German phone number";
-      case "+81": // Japan
-        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid Japanese phone number";
-      default:
-        return /^\d{7,15}$/.test(cleanPhone) ? "" : "Please enter a valid phone number";
-    }
-  };
+  const totalSteps = 8;
 
   const validateCurrentStep = () => {
     switch (currentStep) {
@@ -97,15 +64,15 @@ const WaitlistForm = () => {
         }
         break;
       case 3:
-        if (!formData.countryCode) {
-          setError("Please select a country code");
+        if (!formData.areaCode) {
+          setError("Please select an area code");
           return false;
         }
         if (!formData.phone.trim()) {
           setError("Please enter your phone number");
           return false;
         }
-        const phoneError = validatePhoneNumber(formData.phone, formData.countryCode);
+        const phoneError = validatePhoneNumber(formData.phone, formData.areaCode);
         if (phoneError) {
           setError(phoneError);
           return false;
@@ -169,7 +136,7 @@ const WaitlistForm = () => {
               First Name: ${formData.firstName}
               Last Name: ${formData.lastName}
               Email: ${formData.email}
-              Phone: ${formData.countryCode} ${formData.phone}
+              Phone: ${formData.areaCode} ${formData.phone}
               Interest: ${formData.interest}
               Source: ${formData.source}
             `,
@@ -194,9 +161,9 @@ const WaitlistForm = () => {
     }
   };
 
-  const updateFormData = (field: keyof FormData, value: string) => {
+  const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setError(""); // Clear error when user starts typing
+    setError("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -205,18 +172,6 @@ const WaitlistForm = () => {
     }
   };
 
-  const countryCodes = [
-    { value: "+1", label: "United States (+1)" },
-    { value: "+44", label: "United Kingdom (+44)" },
-    { value: "+91", label: "India (+91)" },
-    { value: "+61", label: "Australia (+61)" },
-    { value: "+86", label: "China (+86)" },
-    { value: "+33", label: "France (+33)" },
-    { value: "+49", label: "Germany (+49)" },
-    { value: "+81", label: "Japan (+81)" },
-  ];
-
-  // Add effect to auto-advance when terms are accepted
   useEffect(() => {
     if (currentStep === 5 && formData.termsAccepted) {
       handleNext();
@@ -244,12 +199,10 @@ const WaitlistForm = () => {
             isActive={currentStep === 0}
             direction={direction}
           >
-            <Input
-              type="text"
+            <PersonalInfo
               value={formData.firstName}
-              onChange={(e) => updateFormData("firstName", e.target.value)}
+              onChange={(value) => updateFormData("firstName", value)}
               placeholder="Type your answer here..."
-              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -258,12 +211,10 @@ const WaitlistForm = () => {
             isActive={currentStep === 1}
             direction={direction}
           >
-            <Input
-              type="text"
+            <PersonalInfo
               value={formData.lastName}
-              onChange={(e) => updateFormData("lastName", e.target.value)}
+              onChange={(value) => updateFormData("lastName", value)}
               placeholder="Type your answer here..."
-              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -272,12 +223,10 @@ const WaitlistForm = () => {
             isActive={currentStep === 2}
             direction={direction}
           >
-            <Input
-              type="email"
+            <PersonalInfo
               value={formData.email}
-              onChange={(e) => updateFormData("email", e.target.value)}
+              onChange={(value) => updateFormData("email", value)}
               placeholder="name@example.com"
-              className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
             />
           </FormStep>
 
@@ -286,37 +235,13 @@ const WaitlistForm = () => {
             isActive={currentStep === 3}
             direction={direction}
           >
-            <div className="space-y-3">
-              <Select
-                value={formData.countryCode}
-                onValueChange={(value) => {
-                  updateFormData("countryCode", value);
-                  // Clear any existing error when country code changes
-                  setError("");
-                }}
-              >
-                <SelectTrigger className="w-full bg-white/80">
-                  <SelectValue placeholder="Select country code" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryCodes.map((code) => (
-                    <SelectItem key={code.value} value={code.value}>
-                      {code.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^\d\s-()]/g, '');
-                  updateFormData("phone", value);
-                }}
-                placeholder={formData.countryCode === "+1" ? "(555) 000-0000" : "Enter your phone number"}
-                className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
-              />
-            </div>
+            <PhoneInput
+              phone={formData.phone}
+              areaCode={formData.areaCode}
+              onPhoneChange={(value) => updateFormData("phone", value)}
+              onAreaCodeChange={(value) => updateFormData("areaCode", value)}
+              error={error}
+            />
           </FormStep>
 
           <FormStep
@@ -324,11 +249,9 @@ const WaitlistForm = () => {
             isActive={currentStep === 4}
             direction={direction}
           >
-            <Textarea
+            <InterestInput
               value={formData.interest}
-              onChange={(e) => updateFormData("interest", e.target.value)}
-              placeholder="Tell us about your interest..."
-              className="w-full bg-white/80 border-form-accent focus:ring-form-accent min-h-[120px]"
+              onChange={(value) => updateFormData("interest", value)}
             />
           </FormStep>
 
@@ -360,7 +283,7 @@ const WaitlistForm = () => {
                   id="terms"
                   checked={formData.termsAccepted}
                   onCheckedChange={(checked) => 
-                    updateFormData("termsAccepted", checked ? "true" : "false")
+                    updateFormData("termsAccepted", checked ? true : false)
                   }
                   className="mt-1"
                 />
