@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -30,6 +30,7 @@ const WaitlistForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"up" | "down">("up");
   const [error, setError] = useState<string>("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -41,7 +42,7 @@ const WaitlistForm = () => {
     termsAccepted: false,
   });
 
-  const totalSteps = 7; // Increased by 1 for Terms step
+  const totalSteps = 8; // Increased by 1 for success message step
 
   const validateCurrentStep = () => {
     switch (currentStep) {
@@ -119,7 +120,6 @@ const WaitlistForm = () => {
     e.preventDefault();
     if (validateCurrentStep()) {
       try {
-        // Send form data to email
         const response = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           headers: {
@@ -145,17 +145,15 @@ const WaitlistForm = () => {
           throw new Error('Failed to send email');
         }
 
-        console.log("Form submitted:", formData);
-        toast({
-          title: "Success!",
-          description: "You've been added to the waitlist. We'll be in touch soon!",
-        });
+        setIsSubmitted(true);
+        setDirection("up");
+        setCurrentStep(totalSteps - 1);
       } catch (error) {
         console.error('Error sending email:', error);
         toast({
-          title: "Submission received",
-          description: "You've been added to the waitlist. We'll be in touch soon!",
-          variant: "default",
+          title: "Error",
+          description: "There was a problem submitting your form. Please try again.",
+          variant: "destructive",
         });
       }
     }
@@ -192,12 +190,12 @@ const WaitlistForm = () => {
 
   return (
     <div className="min-h-screen bg-form-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-white/90 rounded-xl shadow-lg p-6 backdrop-blur-sm">
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-6">
         <FormProgress currentStep={currentStep} totalSteps={totalSteps} />
         
         <form 
           onSubmit={handleSubmit} 
-          className="mt-6 relative min-h-[350px]" 
+          className="mt-6 relative min-h-[350px]"
           onKeyPress={handleKeyPress}
         >
           {error && (
@@ -349,8 +347,26 @@ const WaitlistForm = () => {
             onOptionSelect={(key) => updateFormData("source", key)}
           />
 
+          <FormStep
+            question="Success!"
+            isActive={currentStep === totalSteps - 1}
+            direction={direction}
+          >
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-form-text">
+                You've been added to the waitlist
+              </h3>
+              <p className="text-gray-600">
+                We'll be in touch soon!
+              </p>
+            </div>
+          </FormStep>
+
           <div className="fixed bottom-8 right-8 flex gap-4">
-            {currentStep > 0 && (
+            {currentStep > 0 && currentStep < totalSteps - 1 && (
               <Button
                 type="button"
                 onClick={handlePrevious}
@@ -361,7 +377,7 @@ const WaitlistForm = () => {
                 <ChevronUp className="h-4 w-4" />
               </Button>
             )}
-            {currentStep < totalSteps - 1 ? (
+            {currentStep < totalSteps - 2 ? (
               <Button
                 type="button"
                 onClick={handleNext}
@@ -370,14 +386,14 @@ const WaitlistForm = () => {
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
-            ) : (
+            ) : currentStep === totalSteps - 2 ? (
               <Button 
                 type="submit" 
-                className="px-6 shadow-lg hover:shadow-xl transition-all"
+                className="px-6 shadow-lg hover:shadow-xl transition-all bg-black text-white hover:bg-gray-800"
               >
                 Submit
               </Button>
-            )}
+            ) : null}
           </div>
         </form>
       </div>

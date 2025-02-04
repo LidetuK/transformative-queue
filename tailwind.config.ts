@@ -25,10 +25,11 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         form: {
-          background: "#FAF3E8",
-          text: "#2D3436",
-          accent: "#2C3E50",
-          selected: "#E5E5E5",
+          background: "#FFFFFF",
+          text: "#000000",
+          accent: "#000000",
+          selected: "#F5F5F5",
+          progress: "#FF0000",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",

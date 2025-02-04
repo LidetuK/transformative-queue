@@ -11,7 +11,7 @@ const FormProgress: React.FC<FormProgressProps> = ({ currentStep, totalSteps }) 
   return (
     <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
       <div
-        className="h-full bg-form-accent transition-all duration-300 ease-in-out"
+        className="h-full bg-form-progress transition-all duration-300 ease-in-out"
         style={{ width: `${progress}%` }}
       />
     </div>
