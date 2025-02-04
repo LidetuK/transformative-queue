@@ -44,6 +44,33 @@ const WaitlistForm = () => {
 
   const totalSteps = 8; // Increased by 1 for success message step
 
+  const validatePhoneNumber = (phone: string, countryCode: string) => {
+    // Remove any non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // Basic validation based on country code
+    switch(countryCode) {
+      case "+1": // US/Canada
+        return /^\d{10}$/.test(cleanPhone) ? "" : "Please enter a valid 10-digit phone number";
+      case "+44": // UK
+        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid UK phone number (10-11 digits)";
+      case "+91": // India
+        return /^\d{10}$/.test(cleanPhone) ? "" : "Please enter a valid 10-digit phone number";
+      case "+61": // Australia
+        return /^\d{9,10}$/.test(cleanPhone) ? "" : "Please enter a valid Australian phone number";
+      case "+86": // China
+        return /^\d{11}$/.test(cleanPhone) ? "" : "Please enter a valid Chinese phone number (11 digits)";
+      case "+33": // France
+        return /^\d{9}$/.test(cleanPhone) ? "" : "Please enter a valid French phone number (9 digits)";
+      case "+49": // Germany
+        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid German phone number";
+      case "+81": // Japan
+        return /^\d{10,11}$/.test(cleanPhone) ? "" : "Please enter a valid Japanese phone number";
+      default:
+        return /^\d{7,15}$/.test(cleanPhone) ? "" : "Please enter a valid phone number";
+    }
+  };
+
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 0:
@@ -63,7 +90,6 @@ const WaitlistForm = () => {
           setError("Please enter your email address");
           return false;
         }
-        // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
           setError("Please enter a valid email address");
@@ -71,8 +97,17 @@ const WaitlistForm = () => {
         }
         break;
       case 3:
+        if (!formData.countryCode) {
+          setError("Please select a country code");
+          return false;
+        }
         if (!formData.phone.trim()) {
           setError("Please enter your phone number");
+          return false;
+        }
+        const phoneError = validatePhoneNumber(formData.phone, formData.countryCode);
+        if (phoneError) {
+          setError(phoneError);
           return false;
         }
         break;
@@ -254,7 +289,11 @@ const WaitlistForm = () => {
             <div className="space-y-3">
               <Select
                 value={formData.countryCode}
-                onValueChange={(value) => updateFormData("countryCode", value)}
+                onValueChange={(value) => {
+                  updateFormData("countryCode", value);
+                  // Clear any existing error when country code changes
+                  setError("");
+                }}
               >
                 <SelectTrigger className="w-full bg-white/80">
                   <SelectValue placeholder="Select country code" />
@@ -270,8 +309,11 @@ const WaitlistForm = () => {
               <Input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => updateFormData("phone", e.target.value)}
-                placeholder="(555) 000-0000"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^\d\s-()]/g, '');
+                  updateFormData("phone", value);
+                }}
+                placeholder={formData.countryCode === "+1" ? "(555) 000-0000" : "Enter your phone number"}
                 className="w-full bg-white/80 border-form-accent focus:ring-form-accent"
               />
             </div>
